@@ -24,11 +24,11 @@ export interface SM2Result {
 
 export class SM2Engine {
 
-    static getNewCard(id: string, font: string, back: string): FlashcardData {
+    static getNewCard(id: string, front: string, back: string): FlashcardData {
         const now = new Date();
         return {
             id,
-            font,
+            front,
             back,
             interval: 0,
             ease: 2.5,
