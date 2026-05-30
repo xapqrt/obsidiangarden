@@ -1,0 +1,55 @@
+
+
+
+:root {
+    --garden-bg: #1e222a;
+    --garden-grid-bg: #181b20;
+    --garden-accent: #4caf50;
+    --garden-text: #e2e8f0;
+    --garden-wilted: #8d6e63;
+    --garden-sprout: #81c784;
+    --garden-flower: #e91e63;
+    --garden-border: #2d3139;    
+}
+
+.garden-stats-header {
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--garden-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+ .garden-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: inherit;
+ }
+
+ .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+ }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--text-normal);
+    }
+
+    .garden-grid{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+        gap: 12px;
+        padding: 16px;
+        background-color: var(--background-primary);
+        border-radius: 8px;
+        border: 1px solid var(--garden-border);
+        min-height: 250px;
+    }
