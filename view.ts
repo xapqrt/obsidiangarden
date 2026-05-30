@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { ItemView, WorkspaceLeaf, setTooltip } from "obsidian";
 import SpacedRepetitionGardenPlugin from "./main";
 
 export class GARDEN_VIEW_TYPE = "spaced-repetition-garden-view";
@@ -105,6 +105,7 @@ export class GardenView extends ItemView {
   
   const plantEl = container.createDiv({ cls: `plant-item ${statusClass}` });
   plantEl.createDiv({ text: emoji, cls: "plant-icon" });
+  setTooltip(plantEl, `Seed: ${card.front}`);
   
   plantEl.addEventListener("click", () => {
   this.openReviewModal(card);
