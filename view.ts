@@ -1,7 +1,8 @@
-import { ItemView, WorkspaceLeaf, setTooltip } from "obsidian";
+import { ItemView, WorkspaceLeaf, setTooltip, Modal  } from "obsidian";
 import SpacedRepetitionGardenPlugin from "./main";
+import { FlashcardData } from "./sm2";
 
-export class GARDEN_VIEW_TYPE = "spaced-repetition-garden-view";
+export const GARDEN_VIEW_TYPE = "spaced-repetition-garden-view";
 
 
 export class GardenView extends ItemView {
@@ -114,10 +115,46 @@ export class GardenView extends ItemView {
 } 
   
 openReviewModal(card: any ) { 
-    console.log("Reviewing card:", card.id);
+ new  ReviewModal(this.app, card, this.plugin, () => {
+    this.refresh();
+ }).open();
 }
   
         async onClose() {
         console.log("LEAF CLOSED");
+    }
+}
+
+export class ReviewModal extends Modal {
+    card: FlashcardData;
+    plugin: SpacedRepetitionGardenPlugin;
+    onReviewComplete: () => void;
+
+    constructor(app: any, card: FlashcardData, plugin: SpacedRepetitionGardenPlugin, onReviewComplete: () => void) {
+        super(app);
+        this.card = card;
+        this.plugin = plugin;
+        this.onReviewComplete = onReviewComplete;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.empty();
+        contentEl.addClass("garden-review-modal")
+
+        contentEl.createEl("h3", { text: "Reviewing Plant Seed" });
+
+        const cardBox = contentEl.createDiv({ cls: "review-card-box" });
+        cardBox.createEl({ text: this.card.front, cls: "review-card-front" });
+        
+        const answerBox = cardBox.createDiv({ cls:"review-card-back review-hiddem" });
+        answeBox.createDiv({ text: this.card.back });
+
+        const buttonContainer = contentEl.createDiv({ cls: "review-buttons-container" });
+    }
+
+    onClose() {
+        const { contentEl } = this;
+        contentEl.empty();
     }
 }
