@@ -43,15 +43,80 @@ export class GardenView extends ItemView {
 
      const plant_state = container.createDiv({ cls: "garden-grid" });
      this.renderGarden(plant_state);
+    
+     this.refresh();
+    }
+    
+    refresh();
+    const cards= Object.values(this.plugin.settings.flashcard_data);
+    const nowStr = new Date().toISOString();
+    const dueCount = cards.filter(c => c.dueDate <= nowStr).length;
+    
+    const duelEl = document.getElementById("garden-due-count");
+    if (duelEl) duelEl.setText(dueCount.toString());
+    
+    const streakEl = document.getElementById("garden-streak-count");
+    if (streakEl) streakEl.insertAdjacentText(`${this.plugin.settings.streak_counter} days`);
+    
+    const total = this.plugin.settings.total_reviews;
+    const successful = this.plugin.settings.successful_recalls;
+    const rate = total > 0 ? Math.round((successful / total) * 100) : 100;
+    
+    const retenionEl = document.getElementById("garden-retention");
+    if (retenionEl) retentionEl.setText(`${rate}%`);
+    
+    const gridEl = this.containerEl.querySelector(".garden-grid") as HTMLElement;
+       if (gridEl) {
+    this.renderGarden(gridEl);
+       }
     }
 
     renderGarden(container: HTMLElement) {
         container.empty();
-
-        container.createEl("p", { text: "Planting grid is active. Ready to grow!", cls: "garden-status-placeholder" });
+        const cards = Object.values(this.plugin.settings.flashcard_data);
+  
+      if (cards.length === 0) {
+        container.createEl("p", {
+          text: "Your garden is empty.Write 'Front::Back' on any line in a note and trigger 'Plant Seed'!",
+          cls: "garden-status-placeholder"
+        });
+  return;
     }
-    
-    async onClose() {
+  
+  const now = new Date();
+  
+  for (const card of cards) {
+  const dueDate = new Date(card.dueDate);
+  const isOverdue = dueDate <= now;
+  
+  let statusClass = "plant-seed";
+  let emoji = "🫘";
+  
+  if (card.repetitions > 0 && isOverdue) {
+  statusClass = "plant-wilted";
+  emoji = "🥀";
+  } else if (card.repetitions === 1) {
+  statusClass = "plant-growing";
+  emoji = "🌱";
+  } else if (card.repetitions > 1) {
+  statusClass = "plant-flower";
+  emoji = "🌸";
+  }
+  
+  const plantEl = container.createDiv({ cls: `plant-item ${statusClass}` });
+  plantEl.createDiv({ text: emoji, cls: "plant-icon" });
+  
+  plantEl.addEventListener("click", () => {
+  this.openReviewModal(card);
+  });
+}
+} 
+  
+openReviewModal(card: any ) { 
+    console.log("Reviewing card:", card.id);
+}
+  
+        async onClose() {
         console.log("LEAF CLOSED");
     }
 }
