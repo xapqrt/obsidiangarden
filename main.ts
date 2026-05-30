@@ -5,6 +5,7 @@ import { GardenView, GardenViewType } from "./view";
 
 
 
+
 export interface GardenPluginSettings {}
 flashcard_data: Record<string, FlashcardData>;
 streak_counter: number;
@@ -29,8 +30,11 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
         console.log("spaced repitition garden plugin loading...");
         await this.onloadSettings();
     
+    this.app.workspace.onLayoutReady(async () => {
+           await this.scanVault();
+    });
    
-    this.registerView(
+   this.registerView(
             GARDEN_VIEW_TYPE,
              (leaf) => GardenView(leaf, this)
     );
@@ -134,4 +138,43 @@ parseFlashcardsFromText(text: string): { front: string; back: string; id: string
 
 generateId(): string {
     return Math.random().toString(36).substr(2, 10);
+}
+
+async scanVault() {
+    const files = this.app.vault.getMarkdownFiles();
+    const activeIds = new Set<string>();
+
+    for (const file of files) {
+        const content = await this.app.vault.read(file);
+        const cards = this.parseFlashcardsFromText(content);
+
+        for (const card of cards) {
+            if(card.id) {
+                activeIds.add(card.id);
+                if (!this.settings.flashcard_data[card.id]) {
+                    this.settings.flashcard_data[card.id] = SM2Engine.getNewCard(card.id, card.front, card.back);
+                } else {
+                    this.settings.flashcard_data[card.id].front = card.front;
+                    this.settings.flashcard_data[card.id].back = card.back;
+}
+            }
+        }
+    }
+
+    for (const id in this.settings.flashcard_data) {
+        if (!activeIds.has(id)) {
+            delete this.settings.flashcard_data[id];
+        }
+    }
+
+    await this.saveSettings();
+    console.log("Vault scanned. Total active garden cards:", Object.keys(this.settings.flashcard_data).length);
+
+  const leaves = this.app.workspace.getLeavesOfType(GARDEN_VIEW_TYPE);
+    for (const leaf of leaves) {
+        if (leaf.view instanceof GardenView) {
+            (leaf.view as GardenView).refresh();
+        }
+    }
+}
 }
