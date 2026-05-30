@@ -1,5 +1,5 @@
 import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from "obsidian";
-import { FlashcardData } from "./sm2";
+import { FlashcardData, SM2Engine } from "./sm2";
 
 
 
@@ -28,7 +28,46 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
         console.log("LEAF SPAWNED");
         console.log("spaced repitition garden plugin loading...");
         await this.onloadSettings();
-    }
+    
+    this.addCommand({
+        id: "plant-seed",
+        name: "Plant Seed(Create Flashcard)",
+        editorCallback: async (editor, view) => {
+            const cursor = editor.getCursor();
+            const lineText = editor.getLine(cursor.line);
+
+
+            const frontmatter_junk = lineText.split("::");
+            if (frontmatter_junk.length < 2) {
+                    console.log("Not a valid seed format. Need Front :: Back");
+                    return;
+            }
+
+            const front = frontmatter_junk[0].trim();
+            const back = frontmatter_junk[1].trim();
+           
+            
+            const idMatch = lineText.match(/\^seed-([a-z0-9]+)/);
+            if (idMatch) {
+                console.log("This seed is already planted!");
+                return;
+            }
+
+            const newId = this.generateId();
+            const newLine = `${lineText.trim()} ^seed-${newId}`;
+            editor.setLine(cursor.line, newLine);
+
+
+            const newCard = SM2Engine.getNewCard(newId, front, back);
+            this.settings.flashcard_data[newId] = newCard;
+            await this.saveSettings();
+            console.log("Planted seed:", newId);
+        }
+    });
+}
+   
+   
+   
 
 
 
@@ -36,10 +75,7 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
 
 
 
-
-
-
-    async onunload() {
+async onunload() {
         console.log("garden plugin unloaded. RIP plants.");
     }
 
