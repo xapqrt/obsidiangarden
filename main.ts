@@ -1,6 +1,6 @@
 import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from "obsidian";
 import { FlashcardData, SM2Engine } from "./sm2";
-
+import { GardenView, GardenViewType } from "./view";
 
 
 
@@ -29,7 +29,13 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
         console.log("spaced repitition garden plugin loading...");
         await this.onloadSettings();
     
-    this.addCommand({
+   
+    this.registerView(
+            GARDEN_VIEW_TYPE,
+             (leaf) => GardenView(leaf, this)
+    );
+   
+        this.addCommand({
         id: "plant-seed",
         name: "Plant Seed(Create Flashcard)",
         editorCallback: async (editor, view) => {
