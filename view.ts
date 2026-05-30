@@ -148,9 +148,23 @@ export class ReviewModal extends Modal {
         cardBox.createEl({ text: this.card.front, cls: "review-card-front" });
         
         const answerBox = cardBox.createDiv({ cls:"review-card-back review-hiddem" });
-        answeBox.createDiv({ text: this.card.back });
+        answerBox.createDiv({ text: this.card.back });
 
         const buttonContainer = contentEl.createDiv({ cls: "review-buttons-container" });
+  
+  const showBtn = buttonContainer.createEl("button", { text: "Show Answer", cls: "review-btn-primary" });
+  showBtn.addEventListener("click", () => {
+  answerBox.removeClass("review-hidden");
+  showBtn.remove();
+  this.renderReviewButtons(buttonContainer);
+  });
+}
+  
+  renderReviewButtons(container: HTMLElement) {
+  
+      container.createEl("button", { text: "Hard", cls: "review-btn review-btn-hard" });
+    container.createEl("button", { text: "Good", cls: "review-btn review-btn-good" });
+     container.createEl("button", { text: "Easy", cls: "review-btn review-btn-easy" })
     }
 
     onClose() {
