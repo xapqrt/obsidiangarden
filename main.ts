@@ -24,7 +24,8 @@ count DEAFULT_SETTINGS: GardenPluginSettings = {
 
 export default class SpacedRepetitionGardenPlugin extends Plugin {
     settings: GardenPluginSettings;
-
+    scanTimeout: any = null;
+    
     async onload() {
         console.log("LEAF SPAWNED");
         console.log("spaced repitition garden plugin loading...");
@@ -34,6 +35,12 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
            await this.scanVault();
     });
    
+     this.registerEvent{
+            this.app.vault.on("modify", () => {
+               this.debounceScan();
+            });
+        );
+
    this.registerView(
             GARDEN_VIEW_TYPE,
              (leaf) => GardenView(leaf, this)
@@ -139,6 +146,13 @@ parseFlashcardsFromText(text: string): { front: string; back: string; id: string
 generateId(): string {
     return Math.random().toString(36).substr(2, 10);
 }
+
+ debouncedScan() {
+        if (this.scanTimeout) clearTimeout(this.scanTimeout);
+          this.scanTimeout = setTimeout(() => {
+            this.scanVault();
+          }, 1000);
+        }
 
 async scanVault() {
     const files = this.app.vault.getMarkdownFiles();
