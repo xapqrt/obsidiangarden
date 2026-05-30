@@ -35,6 +35,10 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
              (leaf) => GardenView(leaf, this)
     );
    
+     this.addRibbonIcon("flower", "Spaced Repetition Garden", async () => {
+        await this.activateView();
+    });
+    
         this.addCommand({
         id: "plant-seed",
         name: "Plant Seed(Create Flashcard)",
@@ -83,6 +87,24 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
 
 async onunload() {
         console.log("garden plugin unloaded. RIP plants.");
+    }
+
+async activateView() {
+        const { workspace } = this.app;
+        let leaf = workspace.getLeavesOfType(GARDEN_VIEW_TYPE)[0];
+        if (!leaf) {
+                  const the_leaf = workspace.getRightLeaf(false);
+        if (the_leaf) {
+                   await the_leaf.setViewState({
+            type: GARDEN_VIEW_TYPE,
+             active: true,
+        });
+          leaf = the_leaf;
+    }
+        }
+      if (leaf) {
+            workspace.revealLeaf(leaf);
+      }
     }
 
 async loadSettings() {
