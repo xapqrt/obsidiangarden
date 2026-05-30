@@ -53,3 +53,62 @@
         border: 1px solid var(--garden-border);
         min-height: 250px;
     }
+
+  /* plant styling: wilted ones look sad af */
+    .plant-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        padding: 8px;
+        cursor: pointer;
+        background-color: var(--background-secondary-alt);
+        border: 1px solid transparent;
+        transition: transform 0.2 ease, border-color 0.2s ease, box-shadow 0.2 ease;
+    }
+
+    .plant-item:hover {
+        transform: scale(1.15) rotate(2deg);
+        border-color: var(--garden-accent);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .plant-icon {
+        font-size: 28px;
+        margin-bottom: 4px;
+        line-height: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        transition: filter 0.2s ease;
+    }
+
+/* state-specific filter/animation */
+.plant-seed .plant-icon{
+    animation: plant-pulse 2s infinite ease-in-out;
+}
+
+.plant-sprout .plant-icon {
+    filter: hue-rotate(20deg) saturate(1.2);
+}
+
+.plant-flower .plant-icon {
+    animation: plant-sway 3s infinite ease-in-out;
+}
+
+.plant-wilted .plant-icon {
+    filter: grayscale(0.8) contrast(0.8) brightness(0.7);
+    transform: scale(0.9) translateY(2px) rotate(5deg);
+    opacity: 0.7;
+}
+
+@keyframes plant-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes plant-sway {
+    0% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+    100% { transform: rotate(-3deg); }
+}
