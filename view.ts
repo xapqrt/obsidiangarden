@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, setTooltip, Modal  } from "obsidian";
 import SpacedRepetitionGardenPlugin from "./main";
-import { FlashcardData } from "./sm2";
+import { FlashcardData, SM2Engine } from "./sm2";
 
 export const GARDEN_VIEW_TYPE = "spaced-repetition-garden-view";
 
@@ -18,7 +18,7 @@ export class GardenView extends ItemView {
     }
 
     getDisplayText(): string {
-        return: "Spaced Repetition Garden";
+        return "Spaced Repetition Garden";
     }
 
     async onOpen() {
@@ -161,11 +161,43 @@ export class ReviewModal extends Modal {
 }
   
   renderReviewButtons(container: HTMLElement) {
-  
-      container.createEl("button", { text: "Hard", cls: "review-btn review-btn-hard" });
-    container.createEl("button", { text: "Good", cls: "review-btn review-btn-good" });
-     container.createEl("button", { text: "Easy", cls: "review-btn review-btn-easy" })
+  const grades: { name: string; rating: 0 | 1 | 2; cls: string }[] = [
+     { name: "Hard", rating: 0, cls: "review-btn-hard" },
+     { name: "Good", rating: 1, cls: "review-btn-good" },
+     { name: "Easy", rating: 2, cls: "review-btn-easy" }
+  ];
+
+  for (const grade of grades) {
+     const btn = container.createEl("button", { text: grade.name, cls: `review-btn ${grade.cls}` });
+        btn.addEventListener("click", async () => {
+         await this.submitReview(grade.rating);
+        });
     }
+  }
+
+  async submitReview(rating: 0 | 1 | 2) {
+    const new_state = SM2Engine.calculate(this.card, rating);
+
+   this.plugin.settings.flashcard_data[this.card.id] = {
+    ...this.card,
+    ...new_state
+   };
+
+ this.plugin.settings.total_reviews++;
+ if (rating > 0) {
+     this.plugin.settings.successful_recalls++;
+ }
+
+  this.updateStreakCounter();
+
+   await this.plugin.saveSettings();
+    this.onReviewComplete();
+    this.close();
+  }
+
+updateStreakCounter() {
+
+}
 
     onClose() {
         const { contentEl } = this;
