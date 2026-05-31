@@ -50,7 +50,9 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
         await this.activateView();
     });
     
-        this.addCommand({
+   this.addSettingTab(new GardenSettingTab(this.app, this));
+   
+    this.addCommand({
         id: "plant-seed",
         name: "Plant Seed(Create Flashcard)",
         editorCallback: async (editor, view) => {
@@ -218,3 +220,40 @@ async scanVault() {
     }
 }
     }
+
+    class GardenSettingTab extends PluginsSettingTab {
+        plugin: SpacedRepetitionGardenPlugin;
+
+        constructor(app: App, plugin: SpacedRepetitionGardenPlugin) {
+            super(app, plugin);
+            this.plugin = plugin;
+        }
+
+        display(): void {
+            const { containerEl } = this;
+            containerEl.empty();
+
+            containerEl.createEl("h2", { text: "Spaced Repetition Garden Settings" });
+
+            new Setting(containerEl)
+                .setName("Reset Garden Database")
+                .setDesc("Warning: This clears all card metadata, scheduling, and streak metrics!") 
+                .addButton((button) =>
+                      button
+                    .setButtonText("Reset Database")
+                    .setWarning()
+                    .onClick(async () => {
+                                if (confirm("Are you sure you want to delete all plant metrics? This cannot be undone.")) {
+                                    this.plugin.settings.flashcard_data = {};
+                                this.plugin.settings.streak_counter = 0;
+                              this.plugin.settings.last_review_date = "";
+                               this.plugin.settings.total_reviews = 0;
+                               this.plugin.settings.successful_recalls = 0;
+                                await this.plugin.saveSettings();
+                                    await this.plugin.scanVault();
+                                   console.log("Garden reset.");
+        }
+           })
+       );
+     }
+  }                                                  
