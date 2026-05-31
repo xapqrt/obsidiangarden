@@ -52,7 +52,7 @@ export class GardenView extends ItemView {
      this.refresh();
     }
     
-    refresh();
+    refresh() {
     const cards= Object.values(this.plugin.settings.flashcard_data);
     const nowStr = new Date().toISOString();
     const dueCount = cards.filter(c => c.dueDate <= nowStr).length;
@@ -208,7 +208,7 @@ export class ReviewModal extends Modal {
   }
 
 updateStreakCounter() {
-const now = new Date():
+const now = new Date();
 const todayStr = now.toISOString().split("T")[0];
 
 const lastReview = this.plugin.settings.last_review_date;

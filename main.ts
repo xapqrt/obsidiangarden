@@ -6,19 +6,19 @@ import { GardenView, GardenViewType } from "./view";
 
 
 
-export interface GardenPluginSettings {}
-flashcard_data: Record<string, FlashcardData>;
-streak_counter: number;
-last_review_date: string;
-total_reviews: number;
-successful_recalls: number;
+export interface GardenPluginSettings {
+    flashcard_data: Record<string, FlashcardData>;
+    streak_counter: number;
+    last_review_date: string;
+    total_reviews: number;
+    successful_recalls: number;
 }
 
-count DEAFULT_SETTINGS: GardenPluginSettings = {
-  flashcard_data: {},
-  streak_counter: 0,
-  last_review_date: "",
-  total_reviews: 0,
+const DEFAULT_SETTINGS: GardenPluginSettings = {
+    flashcard_data: {},
+    streak_counter: 0,
+    last_review_date: "",
+    total_reviews: 0,
     successful_recalls: 0,
 };
 
@@ -35,10 +35,10 @@ export default class SpacedRepetitionGardenPlugin extends Plugin {
            await this.scanVault();
     });
    
-     this.registerEvent{
+     this.registerEvent(
             this.app.vault.on("modify", () => {
                this.debounceScan();
-            });
+            })
         );
 
    this.registerView(
@@ -194,8 +194,8 @@ async scanVault() {
     }
 }
 
- async.openCardInVault(cardId: string) {
-    const file = this.app.vault.getMarkdownFiles();
+ async openCardInVault(cardId: string) {
+    const files = this.app.vault.getMarkdownFiles();
     for (const file of files) {
         const content = await this.app.vault.read(file);
             if (content.includes(`^seed-${cardId}`)) {

@@ -3,7 +3,7 @@
         "target": "ES6",
         "module": "commonjs",
         "lib": ["DOM", "ES2020"],
-        "strict": ,
+        "strict": true,
         "noImplicitAny":true,
         "moduleResolution": "node",
         "esModuleInterop": true,
