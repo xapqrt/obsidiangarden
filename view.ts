@@ -41,8 +41,12 @@ export class GardenView extends ItemView {
     retentionStat.createEl("span", { text: "Retention", cls: "stat-label" });
     retentionStat.createEl("span", { text: "100%", cls: "stat-value", id: "garden-retention" });
 
-
-     const plant_state = container.createDiv({ cls: "garden-grid" });
+   const totalSeedsStat = statsHeader.createDiv({ cls: "garden-stat" });
+    totalSeedsStat.createEl("span", { text: "Total Seeds", cls: "stat-label" });
+    totalSeedsStat.createEl("span", { text: "0", cls: "stat-value", id: "garden-total-seeds" });
+    
+    
+    const plant_state = container.createDiv({ cls: "garden-grid" });
      this.renderGarden(plant_state);
     
      this.refresh();
@@ -66,6 +70,9 @@ export class GardenView extends ItemView {
     const retenionEl = document.getElementById("garden-retention");
     if (retenionEl) retentionEl.setText(`${rate}%`);
     
+   const totalSeedsEl = document.getElementById("garden-total-seeds");
+   if (totalSeedsEl) totalSeedsEl.setText(cards.length.toString());
+   
     const gridEl = this.containerEl.querySelector(".garden-grid") as HTMLElement;
        if (gridEl) {
     this.renderGarden(gridEl);
