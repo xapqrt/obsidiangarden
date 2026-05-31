@@ -196,7 +196,29 @@ export class ReviewModal extends Modal {
   }
 
 updateStreakCounter() {
+const now = new Date():
+const todayStr = now.toISOString().split("T")[0];
 
+const lastReview = this.plugin.settings.last_review_date;
+
+if (!lastReview) {
+ this.plugin.settings.streak_counter = 1;
+} else {
+  const lastDate = new Date(lastReview);
+
+const diffTime = Math.abs(now.getTime() - lastDate.getTime());
+const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 1) {
+      if (lastReview !== todayStr) {
+       this.plugin.settings.streak_counter++;
+      }
+    } else {
+        this.plugin.settings.streak_counter = 1;
+    }
+}
+
+this.plugin.settings.last_review_date = todayStr;
 }
 
     onClose() {
