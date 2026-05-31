@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, setTooltip, Modal  } from "obsidian";
+import { ItemView, WorkspaceLeaf, setTooltip, Modal, App } from "obsidian";
 import SpacedRepetitionGardenPlugin from "./main";
 import { FlashcardData, SM2Engine } from "./sm2";
 
@@ -27,23 +27,23 @@ export class GardenView extends ItemView {
         container.empty();
       
 
-     const statsHeader = container.createDiv({ cls: "garden-stats-header" });
+    const statsHeader = container.createDiv({ cls: "garden-stats-header" });
     
     const dueStat = statsHeader.createDiv({ cls: "garden-stat" });
     dueStat.createEl("span", { text: "Due Today", cls: "stat-label" });
-    dueStat.createEl("span", { text: "0", cls: "stat-value", id: "garden-due-count" });
+    dueStat.createEl("span", { text: "0", cls: "stat-value", attr: { id: "garden-due-count" } });
 
     const streakStat = statsHeader.createDiv({ cls: "garden-stat" });
     streakStat.createEl("span", { text: "Streak", cls: "stat-label" });
-    streakStat.createEl("span", { text: "0 days", cls: "stat-value", id: "garden-streak-count" });
+    streakStat.createEl("span", { text: "0 days", cls: "stat-value", attr: { id: "garden-streak-count" } });
 
     const retentionStat = statsHeader.createDiv({ cls: "garden-stat" });
     retentionStat.createEl("span", { text: "Retention", cls: "stat-label" });
-    retentionStat.createEl("span", { text: "100%", cls: "stat-value", id: "garden-retention" });
+    retentionStat.createEl("span", { text: "100%", cls: "stat-value", attr: { id: "garden-retention" } });
 
    const totalSeedsStat = statsHeader.createDiv({ cls: "garden-stat" });
     totalSeedsStat.createEl("span", { text: "Total Seeds", cls: "stat-label" });
-    totalSeedsStat.createEl("span", { text: "0", cls: "stat-value", id: "garden-total-seeds" });
+    totalSeedsStat.createEl("span", { text: "0", cls: "stat-value", attr: { id: "garden-total-seeds" } });
     
     
     const plant_state = container.createDiv({ cls: "garden-grid" });
@@ -61,14 +61,14 @@ export class GardenView extends ItemView {
     if (duelEl) duelEl.setText(dueCount.toString());
     
     const streakEl = document.getElementById("garden-streak-count");
-    if (streakEl) streakEl.insertAdjacentText(`${this.plugin.settings.streak_counter} days`);
+    if (streakEl) streakEl.setText(`${this.plugin.settings.streak_counter} days`);
     
     const total = this.plugin.settings.total_reviews;
     const successful = this.plugin.settings.successful_recalls;
     const rate = total > 0 ? Math.round((successful / total) * 100) : 100;
     
-    const retenionEl = document.getElementById("garden-retention");
-    if (retenionEl) retentionEl.setText(`${rate}%`);
+    const retentionEl = document.getElementById("garden-retention");
+    if (retentionEl) retentionEl.setText(`${rate}%`);
     
    const totalSeedsEl = document.getElementById("garden-total-seeds");
    if (totalSeedsEl) totalSeedsEl.setText(cards.length.toString());
@@ -104,7 +104,7 @@ export class GardenView extends ItemView {
   statusClass = "plant-wilted";
   emoji = "🥀";
   } else if (card.repetitions === 1) {
-  statusClass = "plant-growing";
+  statusClass = "plant-sprout";
   emoji = "🌱";
   } else if (card.repetitions > 1) {
   statusClass = "plant-flower";
@@ -142,7 +142,7 @@ export class ReviewModal extends Modal {
     plugin: SpacedRepetitionGardenPlugin;
     onReviewComplete: () => void;
 
-    constructor(app: any, card: FlashcardData, plugin: SpacedRepetitionGardenPlugin, onReviewComplete: () => void) {
+    constructor(app: App, card: FlashcardData, plugin: SpacedRepetitionGardenPlugin, onReviewComplete: () => void) {
         super(app);
         this.card = card;
         this.plugin = plugin;
@@ -157,9 +157,9 @@ export class ReviewModal extends Modal {
         contentEl.createEl("h3", { text: "Reviewing Plant Seed" });
 
         const cardBox = contentEl.createDiv({ cls: "review-card-box" });
-        cardBox.createEl({ text: this.card.front, cls: "review-card-front" });
+        cardBox.createEl("div", { text: this.card.front, cls: "review-card-front" });
         
-        const answerBox = cardBox.createDiv({ cls:"review-card-back review-hiddem" });
+        const answerBox = cardBox.createDiv({ cls:"review-card-back review-hidden" });
         answerBox.createDiv({ text: this.card.back });
 
         const buttonContainer = contentEl.createDiv({ cls: "review-buttons-container" });
@@ -210,24 +210,21 @@ export class ReviewModal extends Modal {
 updateStreakCounter() {
 const now = new Date();
 const todayStr = now.toISOString().split("T")[0];
-
 const lastReview = this.plugin.settings.last_review_date;
 
 if (!lastReview) {
  this.plugin.settings.streak_counter = 1;
 } else {
-  const lastDate = new Date(lastReview);
+  const lastDate = new Date(lastReview + "T00:00:00");
+  const todayDate = new Date(todayStr + "T00:00:00");
+  const diffTime = todayDate.getTime() - lastDate.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-const diffTime = Math.abs(now.getTime() - lastDate.getTime());
-const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 1) {
-      if (lastReview !== todayStr) {
+  if (diffDays === 1) {
        this.plugin.settings.streak_counter++;
-      }
-    } else {
-        this.plugin.settings.streak_counter = 1;
-    }
+  } else if (diffDays > 1) {
+       this.plugin.settings.streak_counter = 1;
+  }
 }
 
 this.plugin.settings.last_review_date = todayStr;
