@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, MarkdownView  } from "obsidian";
 import { FlashcardData, SM2Engine } from "./sm2";
 import { GardenView, GardenViewType } from "./view";
 
@@ -191,4 +191,30 @@ async scanVault() {
         }
     }
 }
+
+ async.openCardInVault(cardId: string) {
+    const file = this.app.vault.getMarkdownFiles();
+    for (const file of files) {
+        const content = await this.app.vault.read(file);
+            if (content.includes(`^seed-${cardId}`)) {
+                        const leaf = this.app.workspace.getMostRecentLeaf();
+                        if (leaf) {
+                            await leaf.openFile(file);
+                            const lines = content.split("\n");
+                            const lineIdx = lines.findIndex((line) => line.includes(`^seed-${cardId}`));
+                            if (lineIdx !== -1) {
+                                const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+                                if (editor) {
+                                    editor.setCursor({ line: lineIdx, ch: 0 });
+                                    editor.scrollIntoView(
+                                            { from: { line: lineIdx, ch: 0 }, to: { line: lineIdx, ch: 0 } },
+                                            true
+                                    );
+                                }
+                            }
+                        }
+                        break;
+            }
+    }
 }
+    }

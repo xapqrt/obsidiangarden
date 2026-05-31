@@ -118,6 +118,11 @@ export class GardenView extends ItemView {
   plantEl.addEventListener("click", () => {
   this.openReviewModal(card);
   });
+
+plantEl.addEventListener("dblclick", (e) => {
+   e.stopPropagation();
+this.plugin.openCardInVault(card.id);
+});
 }
 } 
   
